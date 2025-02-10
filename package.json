@@ -9,15 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@react-three/fiber": "^8.17.14",
     "@tailwindui/react": "^0.1.1",
     "html2canvas": "^1.4.1",
     "next": "15.1.6",
     "react": "^19.0.0",
     "react-color": "^2.19.3",
     "react-dom": "^19.0.0",
-    "react-sketch-canvas": "^6.2.0",
-    "react-three": "^0.9.7"
+    "react-sketch-canvas": "^6.2.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
