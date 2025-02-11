@@ -3,82 +3,112 @@ import { useState, useRef } from "react";
 import html2canvas from "html2canvas";
 import { SketchPicker } from "react-color";
 import { ReactSketchCanvas } from "react-sketch-canvas";
-
 export default function ValentineMaker() {
   const [message, setMessage] = useState("Happy Galentine's Day!");
-  const [bgColor, setBgColor] = useState("#fbcfe8");
   const [penColor, setPenColor] = useState("#000000");
-  const [image, setImage] = useState(null);
-  const [emoji, setEmoji] = useState("❤️");
-  const [emojiPositions, setEmojiPositions] = useState([]);
   const cardRef = useRef(null);
   const canvasRef = useRef(null);
 
   const downloadCard = async () => {
     if (cardRef.current) {
       const canvas = await html2canvas(cardRef.current);
+      const imageUrl = canvas.toDataURL("image/png");
+      if (navigator.canShare && navigator.canShare({ files: [] })) {
+        try {
+          const blob = await (await fetch(imageUrl)).blob();
+          const file = new File([blob], "galentines-card.png", { type: "image/png" });
+          await navigator.share({ files: [file], title: "Galentine's Day Card" });
+          return;
+        } catch (error) {
+          console.error("Error sharing:", error);
+        }
+      }
       const link = document.createElement("a");
-      link.href = canvas.toDataURL("image/png");
+      link.href = imageUrl;
       link.download = "galentines-card.png";
-      link.click();
+      if (/Mobi|Android/i.test(navigator.userAgent)) {
+        window.open(imageUrl, "_blank");
+      } else {
+        link.click();
+      }
     }
   };
 
   const shareViaSMS = async () => {
-    const smsMessage = encodeURIComponent("Check out this Galentine's Day card I made!");
-    const smsUrl = `sms:?&body=${smsMessage}`;
-
-    if (navigator.share) {
+    if (cardRef.current) {
+      const canvas = await html2canvas(cardRef.current);
+      const imageUrl = canvas.toDataURL("image/png");
       try {
-        await navigator.share({
+        const blob = await (await fetch(imageUrl)).blob();
+        const file = new File([blob], "galentines-card.png", { type: "image/png" });
+        const shareData = {
           title: "Galentine's Day Card",
-          text: smsMessage,
-        });
+          text: "Here's a card I made for you! 💖",
+          files: [file],
+        };
+
+        if (navigator.canShare && navigator.canShare(shareData)) {
+          await navigator.share(shareData);
+        } else {
+          alert("Your device does not support image sharing via text.");
+        }
       } catch (error) {
-        console.error("Error sharing via Web API:", error);
+        console.error("Sharing failed:", error);
       }
-    } else {
-      window.location.href = smsUrl;
     }
-  };
-
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => setImage(e.target.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleEmojiClick = (e) => {
-    const rect = cardRef.current.getBoundingClientRect();
-    setEmojiPositions([...emojiPositions, { x: e.clientX - rect.left, y: e.clientY - rect.top, emoji }]);
   };
 
   return (
     <div className="flex flex-col items-center p-6 min-h-screen bg-pink-100">
       <h1 className="text-3xl font-bold text-red-500 mb-4">Galentine's Day Card Maker</h1>
+      
+      {/* Input Box for Message */}
+      <input
+        type="text"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Enter your message here"
+        className="mb-4 p-2 border rounded-lg text-center"
+      />
+      
       <div className="flex gap-4 mb-4">
-        <input type="text" className="p-2 border rounded-md" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type your message..." />
-        <input type="file" accept="image/*" onChange={handleImageUpload} className="p-2 border rounded-md" />
         <button className="bg-red-400 text-white px-4 py-2 rounded-lg" onClick={downloadCard}>Download</button>
         <button className="bg-blue-400 text-white px-4 py-2 rounded-lg" onClick={shareViaSMS}>Share via SMS</button>
       </div>
+      
       <SketchPicker color={penColor} onChangeComplete={(color) => setPenColor(color.hex)} />
-      <select className="mt-2 p-2 border rounded-md" value={emoji} onChange={(e) => setEmoji(e.target.value)}>
-        <option value="❤️">❤️</option>
-        <option value="🌸">🌸</option>
-        <option value="💖">💖</option>
-        <option value="✨">✨</option>
-      </select>
-      <div ref={cardRef} id="card" onClick={handleEmojiClick} className="relative w-80 h-60 flex flex-col items-center justify-center rounded-lg shadow-lg p-4" style={{ backgroundColor: bgColor }}>
-        {image && <img src={image} alt="Uploaded" className="absolute w-full h-full object-cover rounded-lg" />}
-        <p className="text-lg text-center font-semibold text-red-700 z-10">{message}</p>
-        {emojiPositions.map((pos, index) => (
-          <span key={index} className="absolute text-2xl" style={{ left: pos.x, top: pos.y }}>{pos.emoji}</span>
-        ))}
-        <ReactSketchCanvas ref={canvasRef} strokeWidth={4} strokeColor={penColor} className="absolute inset-0 w-full h-full z-20" />
+      
+      {/* Card Container */}
+      <div
+        ref={cardRef}
+        id="card"
+        className="relative w-80 h-60 flex flex-col items-center justify-center rounded-lg shadow-lg p-4"
+        style={{
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        {/* Displaying the Message on the Card */}
+        <div
+          className="absolute w-3/4 text-lg font-semibold text-red-700 z-100"
+          style={{
+            top: "30%",  // Adjusted for better positioning
+            left: "50%",
+            transform: "translateX(-50%)",
+            textAlign: "center",
+          }}
+        >
+          {message}
+        </div>
+
+        {/* Canvas for Sketching */}
+        <ReactSketchCanvas
+          ref={canvasRef}
+          strokeWidth={4}
+          strokeColor={penColor}
+          className="absolute inset-0 w-full h-full z-20"
+        />
       </div>
     </div>
   );
