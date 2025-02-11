@@ -4,7 +4,6 @@ import html2canvas from "html2canvas";
 import { SketchPicker } from "react-color";
 import { ReactSketchCanvas } from "react-sketch-canvas";
 export default function ValentineMaker() {
-  const [message, setMessage] = useState("Happy Galentine's Day!");
   const [penColor, setPenColor] = useState("#000000");
   const cardRef = useRef(null);
   const canvasRef = useRef(null);
@@ -62,46 +61,24 @@ export default function ValentineMaker() {
     <div className="flex flex-col items-center p-6 min-h-screen bg-pink-100">
       <h1 className="text-3xl font-bold text-red-500 mb-4">Galentine's Day Card Maker</h1>
       
-      {/* Input Box for Message */}
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Enter your message here"
-        className="mb-4 p-2 border rounded-lg text-center"
-      />
-      
-      <div className="flex gap-4 mb-4">
+      <div className="flex gap-4 mb-4 ">
         <button className="bg-red-400 text-white px-4 py-2 rounded-lg" onClick={downloadCard}>Download</button>
         <button className="bg-blue-400 text-white px-4 py-2 rounded-lg" onClick={shareViaSMS}>Share via SMS</button>
       </div>
       
-      <SketchPicker color={penColor} onChangeComplete={(color) => setPenColor(color.hex)} />
+      <SketchPicker color={penColor} className="" onChangeComplete={(color) => setPenColor(color.hex)} />
       
       {/* Card Container */}
       <div
         ref={cardRef}
         id="card"
-        className="relative w-80 h-60 flex flex-col items-center justify-center rounded-lg shadow-lg p-4"
+        className="relative w-80 h-60 flex flex-col items-center justify-center rounded-lg shadow-lg p-4 z-0"
         style={{
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
         }}
       >
-        {/* Displaying the Message on the Card */}
-        <div
-          className="absolute w-3/4 text-lg font-semibold text-red-700 z-100"
-          style={{
-            top: "30%",  // Adjusted for better positioning
-            left: "50%",
-            transform: "translateX(-50%)",
-            textAlign: "center",
-          }}
-        >
-          {message}
-        </div>
-
         {/* Canvas for Sketching */}
         <ReactSketchCanvas
           ref={canvasRef}
