@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from "react";
+import { useState, useRef } from "react"; //importing react's usestate and useref to manage state of page
 import html2canvas from "html2canvas";
 import { SketchPicker } from "react-color";
 import { ReactSketchCanvas } from "react-sketch-canvas";
@@ -8,7 +8,7 @@ export default function ValentineMaker() {
   const cardRef = useRef(null);
   const canvasRef = useRef(null);
 
-  const downloadCard = async () => {
+  const downloadCard = async () => { //function to let user download card to their device
     if (cardRef.current) {
       const canvas = await html2canvas(cardRef.current);
       const imageUrl = canvas.toDataURL("image/png");
@@ -33,41 +33,25 @@ export default function ValentineMaker() {
     }
   };
 
-  const shareViaSMS = async () => {
-    if (cardRef.current) {
-      const canvas = await html2canvas(cardRef.current);
-      const imageUrl = canvas.toDataURL("image/png");
-      try {
-        const blob = await (await fetch(imageUrl)).blob();
-        const file = new File([blob], "galentines-card.png", { type: "image/png" });
-        const shareData = {
-          title: "Galentine's Day Card",
-          text: "Here's a card I made for you! 💖",
-          files: [file],
-        };
-
-        if (navigator.canShare && navigator.canShare(shareData)) {
-          await navigator.share(shareData);
-        } else {
-          alert("Your device does not support image sharing via text.");
-        }
-      } catch (error) {
-        console.error("Sharing failed:", error);
-      }
-    }
+  const shareViaSMS = async () => { //allows user to text/share their card with friends
+    
   };
 
-  return (
+  return (//this chunk of code RETURNS, VISUSALLY, what will appear on the screen. the javascript function is RETURNING HTML CODE
+    
     <div className="flex flex-col items-center p-6 min-h-screen bg-pink-100">
+      {/* The header at the top of the page. You may replace "Galentines Day Card Maker" with text of your choice */}
       <h1 className="text-3xl font-bold text-red-500 mb-4">Galentine's Day Card Maker</h1>
-      
+
+      {/* The buttons which allow the user to SEND and DOWNLOAD their cards. You may change the color of the buttons, color of the text, or change what the text actually says */}
       <div className="flex gap-4 mb-4 ">
         <button className="bg-red-400 text-white px-4 py-2 rounded-lg" onClick={downloadCard}>Download</button>
         <button className="bg-blue-400 text-white px-4 py-2 rounded-lg" onClick={shareViaSMS}>Share via SMS</button>
       </div>
-      
+
+      {/* Color picker */}
       <SketchPicker color={penColor} className="" onChangeComplete={(color) => setPenColor(color.hex)} />
-      
+
       {/* Card Container */}
       <div
         ref={cardRef}
@@ -79,7 +63,8 @@ export default function ValentineMaker() {
           backgroundRepeat: "no-repeat",
         }}
       >
-        {/* Canvas for Sketching */}
+
+        {/* Canvas for Sketching. This is literally the card. */}
         <ReactSketchCanvas
           ref={canvasRef}
           strokeWidth={4}
@@ -87,6 +72,7 @@ export default function ValentineMaker() {
           className="absolute inset-0 w-full h-full z-20"
         />
       </div>
+      
     </div>
   );
 }
